@@ -1,0 +1,24 @@
+[X] SetUp
+    [X] Install dependencies
+    [X] Basic Config, server express
+    [X] Basic Config, Mongo conection
+    [X] Let everything working correctly
+    [X] Public folder for audio files
+[ ] Skeleton of routes
+    [X] Define the whole API
+    [X] Define "sercret areas"
+[ ] Upload file
+    [ ] ID system name
+    [ ] Secure the Upload   
+    [ ] Limit the size
+[ ] Create Database Models
+    [ ] Create model for user
+    [ ] Create model for file
+[ ] Sessions
+    [ ] Make it work
+[ ] Auth
+    [X] Define login flow
+    [X] Create the verifytoken
+    [X] Apply to all secret routes, the middleware
+    [X] Crypt and compare password
+
