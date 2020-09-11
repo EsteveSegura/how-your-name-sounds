@@ -27,3 +27,5 @@ function comparePasswsord(password,hash){
         })
     })
 }
+
+module.exports = { cryptPassword, comparePasswsord }

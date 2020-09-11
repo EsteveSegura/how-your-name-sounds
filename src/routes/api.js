@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const secure = require('../libs/secure');
+const userActions = require('../libs/userActions');
+const password = require('../libs/password')
 
 //A simulation to test JWT
 //TEMP START
@@ -22,17 +24,27 @@ router.get('/', (req, res) => {
 });
 
 //UserRoutes
-router.post('/login', (req, res) => {
-    console.log(req.body)
-    console.log(req.body.user, req.body.pw)
-    if (checkIfUserCanLogin(req.body.user, req.body.pw)) {
-        jwt.sign({ 'data': req.body }, process.env.API_KEY || 'algosupersecreto1', (err, token) => {
-            if (err) {
-                res.json({ 'message': "ERROR", 'data': err });
-            }
-            req.session.token = token
-            res.json({ 'message': "OK", 'data': token });
-        })
+router.post('/register', async(req,res) => {
+    req.body.pw = await password.cryptPassword(req.body.pw)
+    let registerUser = await userActions.createNewUser(req.body)
+    res.json(registerUser)
+})
+
+router.post('/login', async(req, res) => {
+    let userFromDataBase = await userActions.checkIfUserExists(req.body);
+    if (userFromDataBase) {
+        let comparePassword = await password.comparePasswsord(req.body.pw,userFromDataBase.pw)
+        if(comparePassword){
+            jwt.sign({ 'data': req.body }, process.env.API_KEY || 'algosupersecreto1', (err, token) => {
+                if (err) {
+                    res.json({ 'message': "ERROR", 'data': err });
+                }
+                req.session.token = token
+                res.json({ 'message': "OK", 'data': token });
+            })
+        }else{
+            res.status(403)
+        }
     } else {
         res.json({ 'message': "ERROR WRONG USER", 'data': req.body });
     }
