@@ -6,8 +6,8 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 
 mongoose.connect(process.env.DATA_BASE_STRING_CONN || 'mongodb://localhost/howmynamesounds', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Database Running [OK]'))
-    .catch((err) => console.log('Error connecting to database' + err))
+    /*.then(() => console.log('Database Running [OK]'))
+    .catch((err) => console.log('Error connecting to database' + err))*/
 
 const app = express();
 const api = require('./routes/api');
@@ -29,3 +29,5 @@ app.use('/api', api)
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server web Running [OK]");
 });
+
+module.exports =  app
