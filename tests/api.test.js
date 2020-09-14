@@ -21,13 +21,11 @@ describe("POST /api/login", () => {
             .expect("Content-Type", /json/)
             .expect('set-cookie', /connect.sid/)
             .expect(200)
-            .expect((res) => {
-                if (!expect(res.body.message).to.be.a("string")) throw new Error("Message with incorrect forma")
-                if (!expect(res.body.message).to.be.equal("user acess granted")) throw new Error("Cant login")
-                if (!expect(res.body.data).to.be.a("string")) throw new Error("Not having data")
-            })
             .end(function (err, res) {
-                if (err) return err
+                if (err) done(err)
+                expect(res.body.message).to.be.a("string")
+                expect(res.body.message).to.be.equal("user acess granted")
+                expect(res.body.data).to.be.a("string")
                 cookie = { name: res.headers['set-cookie'].toString().split('=')[0], value: res.headers['set-cookie'].toString().split('=')[1].split(';')[0] }
                 done()
             })
@@ -53,10 +51,11 @@ describe('GET /api/secret', () => {
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
             .expect(200)
-            .expect((res) => {
-                if (!expect(res.body.message).to.be.equal("data")) throw new Error("Cant get in to secret area")
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.message).to.be.equal("data")
+                done()
             })
-            .end(done)
 
     })
     it('Respon with no access to secret area', (done) => {
@@ -82,22 +81,29 @@ describe('POST /api/register', () => {
             .expect("Content-Type", /json/)
             .expect(201)
             .expect((res) => {
-                if(!expect(res.body.email).to.be.equal(mailToRegister)) throw new Error("Email not match")
-                if(!expect(res.body.__v).to.be.equal(0)) throw new Error("Erro with user in database")
             })
-            .end(done)
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.email).to.be.equal(mailToRegister)
+                expect(res.body.__v).to.be.equal(0)
+                done()
+            })
     })
 
-    it('Try to register a user that already exists',(done) =>{
+    it('Try to register a user that already exists', (done) => {
         request(app)
-        .post('/api/register')
+            .post('/api/register')
             .set("Accept", "application/json")
             .send({ "email": data.existingData.mail, "pw": data.existingData.password })
             .expect("Content-Type", /json/)
             .expect(403)
             .expect((res) => {
-                if(!expect(res.body.message).to.be.equal("user already exists")) throw new Error("Cant register an existing user")
+                if (!expect(res.body.message).to.be.equal("user already exists")) throw new Error("Cant register an existing user")
             })
-            .end(done)
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.message).to.be.equal("user already exists")
+                done()
+            })
     })
 })
