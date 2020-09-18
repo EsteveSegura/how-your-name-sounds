@@ -4,7 +4,9 @@ const bcrypt = require('bcrypt')
 
 let userSchema = new Schema({
     email: String,
+    screenName: String,
     pw: String,
+    updatedAt: { 'type': Date, 'default': Date.now() },
     soundPath: { 'type': String, 'default': './' }
 });
 
@@ -16,5 +18,13 @@ userSchema.statics.encryptPassword = async (pw) => {
 userSchema.statics.comparePassword = async (pw, hash) => {
     return await bcrypt.compare(pw, hash)
 }
+
+userSchema.pre('findOneAndUpdate', function (next) {
+    let update = this.getUpdate().$set
+    if (update.soundPath) {
+        this.getUpdate().updatedAt = Date.now();
+    }
+    next();
+});
 
 module.exports = mongoose.model('user', userSchema)

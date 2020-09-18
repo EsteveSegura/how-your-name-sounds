@@ -4,16 +4,19 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const rateLimit = require("express-rate-limit");
+const helmet = require('helmet')
 
-mongoose.connect(process.env.DATA_BASE_STRING_CONN || 'mongodb://localhost/howmynamesounds', { useNewUrlParser: true, useUnifiedTopology: true })
-    /*.then(() => console.log('Database Running [OK]'))
-    .catch((err) => console.log('Error connecting to database' + err))*/
+mongoose.connect(process.env.DATA_BASE_STRING_CONN || 'mongodb://localhost/howmynamesounds', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
+/*.then(() => console.log('Database Running [OK]'))
+.catch((err) => console.log('Error connecting to database' + err))*/
 
 const app = express();
 const api = require('./routes/api');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(helmet())
 app.use(cors());
 app.use(session({
     secret: process.env.SESSION_KEY || 'algosupersecreto',
@@ -30,4 +33,4 @@ app.listen(process.env.PORT || 3000, () => {
     console.log("Server web Running [OK]");
 });
 
-module.exports =  app
+module.exports = app
