@@ -25,7 +25,7 @@ app.use(session({
     cookie: { secure: false, maxAge: process.env.COOKIE_MAX_AGE || 1000 * 60 * 4 }
 }));
 //PRODUCTION VALUE
-//app.set('trust proxy', 1)
+app.set('trust proxy', 1)
 
 app.use('/api', api)
 
