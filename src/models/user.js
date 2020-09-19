@@ -6,6 +6,8 @@ let userSchema = new Schema({
     email: String,
     screenName: String,
     pw: String,
+    verificationToken: String,
+    verificatedUser: { 'type': Boolean, 'default': false },
     updatedAt: { 'type': Date, 'default': Date.now() },
     soundPath: { 'type': String, 'default': './' }
 });
@@ -20,11 +22,15 @@ userSchema.statics.comparePassword = async (pw, hash) => {
 }
 
 userSchema.pre('findOneAndUpdate', function (next) {
-    let update = this.getUpdate().$set
-    if (update.soundPath) {
-        this.getUpdate().updatedAt = Date.now();
+    try {
+        let update = this.getUpdate().$set
+        if (update.soundPath) {
+            this.getUpdate().updatedAt = Date.now();
+        }
+        next();
+    } catch (error) {
+        next();
     }
-    next();
 });
 
 module.exports = mongoose.model('user', userSchema)

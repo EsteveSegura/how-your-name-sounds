@@ -3,9 +3,8 @@ const jwt = require('jsonwebtoken');
 const path = require('path')
 const multer = require('multer');
 const validation = require('../middleware/validation');
-const { body, validationResult } = require('express-validator');
-
-
+const mail = require('../libs/mail');
+const crypto = require('crypto')
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, path.join(__dirname, '../static/audio')),
@@ -20,15 +19,26 @@ const upload = multer({
 }).single('audio')
 
 async function createNewUser(req, res) {
-    let validate = await validation.createUser(req,res)
-    if(validate) return res.status(400).json({ 'message': validate })
+    let validate = await validation.createUser(req, res)
+    if (validate) return res.status(400).json({ 'message': validate })
 
     let userFromDataBase = await getUserDataBase(req.body);
     if (userFromDataBase) return res.status(403).json({ 'message': 'user already exists' })
 
+    let mailToken = crypto.createHmac('sha256', JSON.stringify(req.body)).digest('hex')
+    let sendMail = await mail.sendMailTo(req.body.email, `http://localhost:3000/api/confirm/${mailToken}`)
+    if (!sendMail) return res.status(500).json({ 'message': 'Mail system not working' })
+
     req.body.pw = await user.encryptPassword(req.body.pw)
-    let newUser = new user(req.body)
+    let newUser = new user(Object.assign(req.body, { verificationToken: mailToken }))
     return res.status(201).json(await newUser.save())
+}
+
+async function confirmMail(req, res) {
+    let edit = await user.findOneAndUpdate({verificationToken: req.params.tokenConfirm}, {verificatedUser: true})
+    if(!edit) return res.status(500).json({'message' : 'database problems.'})
+
+    return res.status(200).json({'message': 'user confirmed'})
 }
 
 async function login(req, res) {
@@ -41,6 +51,8 @@ async function login(req, res) {
     let token = jwt.sign({ 'data': req.body }, process.env.API_KEY || 'algosupersecreto1')
     if (!token) return res.status(401).json({ 'message': 'wrong auth' })
 
+    if(!userFromDataBase.verificatedUser) return res.status(401).json({'message' : 'need to confirm via mail'})
+
     req.session.token = token
     req.session.userInfo = { email: req.body.email, _id: userFromDataBase._id, soundPath: userFromDataBase.soundPath }
     return res.status(200).json({ 'message': 'user acess granted', 'data': token })
@@ -48,8 +60,8 @@ async function login(req, res) {
 
 async function editUser(req, res) {
     upload(req, res, async (err) => {
-        let validate = await validation.editUser(req,res)
-        if(validate) return res.status(400).json({ 'message': validate })
+        let validate = await validation.editUser(req, res)
+        if (validate) return res.status(400).json({ 'message': validate })
 
         if (err) return res.status(500).json({ 'message': err.toString().split('Error: ')[1] })
 
@@ -85,4 +97,4 @@ async function getFeedDataBase() {
     return getFeed
 }
 
-module.exports = { createNewUser, login, editUser, feed }
+module.exports = { createNewUser, login, editUser, feed, confirmMail }

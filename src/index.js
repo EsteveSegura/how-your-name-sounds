@@ -8,8 +8,8 @@ const rateLimit = require("express-rate-limit");
 const helmet = require('helmet')
 
 mongoose.connect(process.env.DATA_BASE_STRING_CONN || 'mongodb://localhost/howmynamesounds', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
-/*.then(() => console.log('Database Running [OK]'))
-.catch((err) => console.log('Error connecting to database' + err))*/
+.then(() => console.log('Database Running [OK]'))
+.catch((err) => console.log('Error connecting to database' + err))
 
 const app = express();
 const api = require('./routes/api');

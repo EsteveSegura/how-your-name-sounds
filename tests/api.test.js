@@ -1,10 +1,13 @@
 const request = require("supertest");
+const path = require('path')
+require('dotenv').config({path: path.resolve(__dirname, '../src/.env') })
 const chai = require("chai")
 const expect = require('chai').expect;
 
 const app = require("../src/index");
 
-let cookie;
+let cookie; 
+let verificationToken;
 const data = {
     existingData: {
         mail: `${Math.random().toString(36).substring(7)}@gir.com`,
@@ -25,6 +28,7 @@ describe('POST /api/register', () => {
                 if (err) done(err)
                 expect(res.body.email).to.be.equal(data.existingData.mail)
                 expect(res.body.__v).to.be.equal(0)
+                verificationToken = res.body.verificationToken
                 done()
             })
     })
@@ -81,6 +85,23 @@ describe('POST /api/register', () => {
             .end(function (err, res) {
                 if (err) done(err)
                 expect(res.body.message).to.be.equal("user already exists")
+                done()
+            })
+    })
+})
+
+
+describe("GET /api/confirm/:tokenConfirm", () => {
+    it("confirmation via mail", (done) => {
+        request(app)
+            .get(`/api/confirm/${verificationToken}`)
+            .set("Accept", "application/json")
+            .expect("Content-Type", /json/)
+            .expect("set-cookie", /connect.sid/)
+            .expect(200)
+            .end(function(err,res) {
+                if(err) done(err)
+                expect(res.body.message).to.be.equal("user confirmed")
                 done()
             })
     })
