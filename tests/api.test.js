@@ -1,13 +1,14 @@
 const request = require("supertest");
 const path = require('path')
-require('dotenv').config({path: path.resolve(__dirname, '../src/.env') })
+require('dotenv').config({ path: path.resolve(__dirname, '../src/.env') })
 const chai = require("chai")
 const expect = require('chai').expect;
 
 const app = require("../src/index");
 
-let cookie; 
+let cookie;
 let verificationToken;
+let userAlawaysPresent = "girlazote@gmail.com"
 const data = {
     existingData: {
         mail: `${Math.random().toString(36).substring(7)}@gir.com`,
@@ -99,8 +100,8 @@ describe("GET /api/confirm/:tokenConfirm", () => {
             .expect("Content-Type", /json/)
             .expect("set-cookie", /connect.sid/)
             .expect(200)
-            .end(function(err,res) {
-                if(err) done(err)
+            .end(function (err, res) {
+                if (err) done(err)
                 expect(res.body.message).to.be.equal("user confirmed")
                 done()
             })
@@ -115,13 +116,13 @@ describe("POST /api/login", () => {
             .send({ "email": data.existingData.mail, "pw": data.existingData.password })
             .expect("Content-Type", /json/)
             .expect('set-cookie', /connect.sid/)
+            .expect('set-cookie', /userData/)
             .expect(200)
             .end(function (err, res) {
                 if (err) done(err)
                 expect(res.body.message).to.be.a("string")
                 expect(res.body.message).to.be.equal("user acess granted")
-                expect(res.body.data).to.be.a("string")
-                cookie = { name: res.headers['set-cookie'].toString().split('=')[0], value: res.headers['set-cookie'].toString().split('=')[1].split(';')[0] }
+                cookie = { name: res.headers['set-cookie'][1].toString().split('=')[0], value: res.headers['set-cookie'][1].toString().split('=')[1].split(';')[0] }
                 done()
             })
     });
@@ -241,4 +242,69 @@ describe("GET /api/feed", () => {
                 done()
             })
     })
+})
+
+describe("GET /api/me", () => {
+    it("get my own info", (done) => {
+        request(app)
+            .get(`/api/me`)
+            .set("Accept", "application/json")
+            .set("Cookie", `${cookie.name}=${cookie.value}`)
+            .expect("Content-Type", /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.email).to.be.a("String")
+                expect(res.body.soundPath).to.be.a("String")
+                expect(res.body.screenName).to.be.a("String")
+                done()
+            })
+    })
+
+    it("try to get info without login", (done) => {
+        request(app)
+            .get(`/api/me`)
+            .set("Accept", "application/json")
+            .set("Cookie", `${cookie.name}=${Math.round(Math.random)}`)
+            .expect("Content-Type", /json/)
+            .expect(401)
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.message).to.be.equal("Unauthorized!")
+                done()
+            })
+    })
+})
+
+describe("GET /api/user/:email", () => {
+    it("get info about user", (done) => {
+        request(app)
+            .get(`/api/user/${userAlawaysPresent}`)
+            .set("Accept", "application/json")
+            .set("Cookie", `${cookie.name}=${cookie.value}`)
+            .expect("Content-Type", /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.soundPath).to.be.a("String")
+                expect(res.body.screenName).to.be.a("String")
+                done()
+            })
+    })
+
+    it("try to get info about 404 user", (done) => {
+        request(app)
+            .get(`/api/user/${Math.round(Math.random)}`)
+            .set("Accept", "application/json")
+            .set("Cookie", `${cookie.name}=${cookie.value}`)
+            .expect("Content-Type", /json/)
+            .expect(401)
+            .end(function (err, res) {
+                if (err) done(err)
+                expect(res.body.message).to.be.equal("user no exists")
+                
+                done()
+            })
+    })
+
 })

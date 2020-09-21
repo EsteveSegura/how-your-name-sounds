@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
 const session = require('express-session');
 const rateLimit = require("express-rate-limit");
 const helmet = require('helmet')
@@ -17,7 +18,11 @@ const api = require('./routes/api');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet())
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:8080',
+    credentials : true
+}));
+app.use(cookieParser())
 app.use(session({
     secret: process.env.SESSION_KEY || 'algosupersecreto',
     resave: true,
