@@ -15,7 +15,7 @@ async function createNewUser(req, res) {
     if (userFromDataBase) return res.status(403).json({ 'error': 'user already exists' })
 
     let mailToken = crypto.createHmac('sha256', JSON.stringify(req.body)).digest('hex')
-    let sendMail = await mail.sendMailTo(req.body.email, `http://localhost:3000/api/confirm/${mailToken}`)
+    let sendMail = await mail.sendMailTo(req.body.email, `http://localhost:3000/api/user/confirm/${mailToken}`)
     if (!sendMail) return res.status(500).json({ 'error': 'Mail system not working' })
 
     req.body.pw = await user.encryptPassword(req.body.pw)
@@ -41,6 +41,8 @@ async function login(req, res) {
     if (!token) return res.status(401).json({ 'error': 'wrong auth' })
 
     if (!userFromDataBase.verificatedUser) return res.status(401).json({ 'error': 'need to confirm via mail' })
+
+    if (!userFromDataBase.activeProfile) return res.status(401).json({ 'error': 'Banned' })
 
     let cookieData = JSON.stringify({ screenName: userFromDataBase.screenName, email: req.body.email })
     res.cookie('userData', cookieData, { expires: new Date(Date.now() + 9000000), httpOnly: true })
@@ -82,8 +84,10 @@ async function me(req, res) {
 }
 
 async function getUser(req, res) {
-    let userFromDataBase = await dbUser.getUserDataBase(req.params, 'screenName soundPath -_id')
+    let userFromDataBase = await dbUser.getUserDataBase(req.params, 'screenName activeProfile soundPath -_id')
     if (!userFromDataBase) return res.status(401).json({ 'error': 'user no exists' })
+    if (!userFromDataBase.activeProfile) return res.status(200).json({ 'error': 'user banned' })
+    console.log(userFromDataBase.activeProfile)
 
     return res.status(200).json(userFromDataBase)
 }

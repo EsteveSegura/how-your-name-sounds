@@ -1,12 +1,12 @@
 //https://myaccount.google.com/lesssecureapps
 const nodemailer = require('nodemailer')
 
-async function sendMailTo(toMail, link){
+async function sendMailTo(toMail, link) {
     const transport = nodemailer.createTransport({
         service: 'gmail',
-        auth:{
-            user:process.env.MAIL,
-            pass:process.env.MAIL_PASSWORD
+        auth: {
+            user: process.env.MAIL,
+            pass: process.env.MAIL_PASSWORD
         }
     });
 

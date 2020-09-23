@@ -5,8 +5,8 @@ const rateLimit = require('../middleware/ratelimit')
 const adminController = require('../controllers/admin.controller');
 
 //admin
-router.get('/admin/getusers', secure.verifyAdmin, async (req, res) => await adminController.getUsers(req, res))
-router.patch('/admin/edit/:email', secure.verifyAdmin, async (req, res) => await adminController.editUser(req, res))
-router.patch('/admin/censor/:email', secure.verifyAdmin, async (req, res) => await adminController.censorUser(req, res))
+router.get('/getusers', secure.verifyAdmin, async (req, res) => await adminController.getUsers(req, res))
+router.patch('/edit/:email', secure.verifyAdmin, async (req, res) => await adminController.editUser(req, res))
+router.patch('/censor/:email', secure.verifyAdmin, async (req, res) => await adminController.censorUser(req, res))
 
 module.exports = router

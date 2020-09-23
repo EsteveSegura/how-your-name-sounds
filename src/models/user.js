@@ -6,8 +6,9 @@ let userSchema = new Schema({
     email: String,
     screenName: String,
     pw: String,
-    isAdmin: { type: Boolean, default: false },
     verificationToken: String,
+    activeProfile: {type: Boolean, default: true},
+    isAdmin: { type: Boolean, default: false },
     verificatedUser: { 'type': Boolean, 'default': false },
     updatedAt: { 'type': Date, 'default': Date.now() },
     soundPath: { 'type': String, 'default': './' }

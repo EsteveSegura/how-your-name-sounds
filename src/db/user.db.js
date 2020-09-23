@@ -7,9 +7,9 @@ async function editUserDataBase(email, dataUpdate) {
 }
 
 async function getUserDataBase(data, filter) {
-    let findUserAlreadyExists = await user.findOne({ email: data.email }, filter != null ? filter : "" )
+    let findUserAlreadyExists = await user.findOne({ email: data.email }, filter != null ? filter : "")
     return findUserAlreadyExists
-    
+
 }
 
 async function getFeedDataBase(limitUsers = 10) {
