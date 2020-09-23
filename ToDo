@@ -5,7 +5,10 @@
 [X]Route /Logout
 [X]CORS
 [X]Clean data
+[ ]Role system
+[ ]middleware is admin?
+[ ]Admin controller
+
 [ ]Recovery Password
 [ ]Turn off service
-[ ]Role system
 [ ]Remove old data

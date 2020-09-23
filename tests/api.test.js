@@ -17,10 +17,10 @@ const data = {
     }
 }
 
-describe('POST /api/register', () => {
+describe('POST /api/user/register', () => {
     it('Register a new user.', (done) => {
         request(app)
-            .post('/api/register')
+            .post('/api/user/register')
             .set("Accept", "application/json")
             .send({ "email": data.existingData.mail, "pw": data.existingData.password, 'screenName': data.existingData.screenName })
             .expect("Content-Type", /json/)
@@ -36,66 +36,66 @@ describe('POST /api/register', () => {
 
     it('Try to register a new user with wrong mail.', (done) => {
         request(app)
-            .post('/api/register')
+            .post('/api/user/register')
             .set("Accept", "application/json")
             .send({ "email": '234asd4gmail.com', "pw": data.existingData.password, 'screenName': data.existingData.screenName })
             .expect("Content-Type", /json/)
             .expect(400)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal('mail wrong format')
+                expect(res.body.error).to.be.equal('mail wrong format')
                 done()
             })
     })
 
     it('Register a new user. With incorrect password', (done) => {
         request(app)
-            .post('/api/register')
+            .post('/api/user/register')
             .set("Accept", "application/json")
             .send({ "email": `new${data.existingData.mail}`, "pw": 'da', "screenName": data.existingData.screenName })
             .expect("Content-Type", /json/)
             .expect(400)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal("must be at last 6 chars long")
+                expect(res.body.error).to.be.equal("must be at last 6 chars long")
                 done()
             })
     })
 
     it('Register a new user. With incorrect screenName', (done) => {
         request(app)
-            .post('/api/register')
+            .post('/api/user/register')
             .set("Accept", "application/json")
             .send({ "email": `new${data.existingData.mail}`, "pw": Math.random().toString(36).substring(3), "screenName": "ni" })
             .expect("Content-Type", /json/)
             .expect(400)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal("must be at last 3 chars long")
+                expect(res.body.error).to.be.equal("must be at last 3 chars long")
                 done()
             })
     })
 
     it('Try to register a user that already exists', (done) => {
         request(app)
-            .post('/api/register')
+            .post('/api/user/register')
             .set("Accept", "application/json")
             .send({ "email": data.existingData.mail, "pw": data.existingData.password, 'screenName': data.existingData.screenName })
             .expect("Content-Type", /json/)
             .expect(403)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal("user already exists")
+                expect(res.body.error).to.be.equal("user already exists")
                 done()
             })
     })
 })
 
 
-describe("GET /api/confirm/:tokenConfirm", () => {
+describe("GET /api/user/confirm/:tokenConfirm", () => {
     it("confirmation via mail", (done) => {
         request(app)
-            .get(`/api/confirm/${verificationToken}`)
+            .get(`/api/user/confirm/${verificationToken}`)
             .set("Accept", "application/json")
             .expect("Content-Type", /json/)
             .expect("set-cookie", /connect.sid/)
@@ -108,10 +108,10 @@ describe("GET /api/confirm/:tokenConfirm", () => {
     })
 })
 
-describe("POST /api/login", () => {
+describe("POST /api/user/login", () => {
     it("Give access when the user entered is correct", (done) => {
         request(app)
-            .post("/api/login")
+            .post("/api/user/login")
             .set("Accept", "application/json")
             .send({ "email": data.existingData.mail, "pw": data.existingData.password })
             .expect("Content-Type", /json/)
@@ -129,7 +129,7 @@ describe("POST /api/login", () => {
 
     it("Do not give access whe the user or password entered are incorrect", (done) => {
         request(app)
-            .post("/api/login")
+            .post("/api/user/login")
             .set("Accept", "application/json")
             .send({ "email": "wronguser@wrongmail.com", "pw": "wrongpassword" })
             .expect("Content-Type", /json/)
@@ -139,10 +139,10 @@ describe("POST /api/login", () => {
     })
 });
 
-describe("PATCH /api/edit", () => {
+describe("PATCH /api/user/edit", () => {
     it("Upload file", (done) => {
         request(app)
-            .patch("/api/edit")
+            .patch("/api/user/edit")
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
@@ -156,7 +156,7 @@ describe("PATCH /api/edit", () => {
     });
     it("Upload wrong file type", (done) => {
         request(app)
-            .patch("/api/edit")
+            .patch("/api/user/edit")
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
@@ -164,14 +164,14 @@ describe("PATCH /api/edit", () => {
             .expect(500)
             .end(function (err, res) {
                 if (err) return done(err)
-                expect(res.body.message).to.be.equal("Only audio files are allowed")
+                expect(res.body.error).to.be.equal("Only audio files are allowed")
                 done()
             })
     });
 
     it("Upload huge file ", (done) => {
         request(app)
-            .patch("/api/edit")
+            .patch("/api/user/edit")
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
@@ -179,28 +179,28 @@ describe("PATCH /api/edit", () => {
             .expect(500)
             .end(function (err, res) {
                 if (err) return done(err)
-                expect(res.body.message).to.be.equal("File too large")
+                expect(res.body.error).to.be.equal("File too large")
                 done()
             })
     });
 
     it("Try to upload file without login ", (done) => {
         request(app)
-            .patch("/api/edit")
+            .patch("/api/user/edit")
             .set("Accept", "application/json")
             .expect("Content-Type", /json/)
             .attach('audio', 'tests/attach/enserio.mp3')
             .expect(401)
             .end(function (err, res) {
                 if (err) return done(err)
-                expect(res.body.message).to.be.equal("Unauthorized!")
+                expect(res.body.error).to.be.equal("Unauthorized!")
                 done()
             })
     });
 
     it("Edit data without uploading data ", (done) => {
         request(app)
-            .patch("/api/edit")
+            .patch("/api/user/edit")
             .set("Accept", "application/json")
             .expect("Content-Type", /json/)
             .set("Cookie", `${cookie.name}=${cookie.value}`)
@@ -238,16 +238,16 @@ describe("GET /api/feed", () => {
             .expect(401)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal("Unauthorized!")
+                expect(res.body.error).to.be.equal("Unauthorized!")
                 done()
             })
     })
 })
 
-describe("GET /api/me", () => {
+describe("GET /api/user/me", () => {
     it("get my own info", (done) => {
         request(app)
-            .get(`/api/me`)
+            .get(`/api/user/me`)
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
@@ -263,23 +263,23 @@ describe("GET /api/me", () => {
 
     it("try to get info without login", (done) => {
         request(app)
-            .get(`/api/me`)
+            .get(`/api/user/me`)
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${Math.round(Math.random)}`)
             .expect("Content-Type", /json/)
             .expect(401)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal("Unauthorized!")
+                expect(res.body.error).to.be.equal("Unauthorized!")
                 done()
             })
     })
 })
 
-describe("GET /api/user/:email", () => {
+describe("GET /api/user/profile/:email", () => {
     it("get info about user", (done) => {
         request(app)
-            .get(`/api/user/${userAlawaysPresent}`)
+            .get(`/api/user/profile/${userAlawaysPresent}`)
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
@@ -294,14 +294,14 @@ describe("GET /api/user/:email", () => {
 
     it("try to get info about 404 user", (done) => {
         request(app)
-            .get(`/api/user/${Math.round(Math.random)}`)
+            .get(`/api/user/profile/${Math.round(Math.random)}`)
             .set("Accept", "application/json")
             .set("Cookie", `${cookie.name}=${cookie.value}`)
             .expect("Content-Type", /json/)
             .expect(401)
             .end(function (err, res) {
                 if (err) done(err)
-                expect(res.body.message).to.be.equal("user no exists")
+                expect(res.body.error).to.be.equal("user no exists")
                 
                 done()
             })

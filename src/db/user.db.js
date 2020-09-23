@@ -9,10 +9,11 @@ async function editUserDataBase(email, dataUpdate) {
 async function getUserDataBase(data, filter) {
     let findUserAlreadyExists = await user.findOne({ email: data.email }, filter != null ? filter : "" )
     return findUserAlreadyExists
+    
 }
 
-async function getFeedDataBase() {
-    let getFeed = await user.find({}, 'screenName soundPath updatedAt -_id').sort({ updatedAt: 'desc' }).limit(10)
+async function getFeedDataBase(limitUsers = 10) {
+    let getFeed = await user.find({}, 'screenName soundPath updatedAt -_id').sort({ updatedAt: 'desc' }).limit(limitUsers)
     return getFeed
 }
 

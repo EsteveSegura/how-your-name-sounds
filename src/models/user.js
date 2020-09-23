@@ -6,6 +6,7 @@ let userSchema = new Schema({
     email: String,
     screenName: String,
     pw: String,
+    isAdmin: { type: Boolean, default: false },
     verificationToken: String,
     verificatedUser: { 'type': Boolean, 'default': false },
     updatedAt: { 'type': Date, 'default': Date.now() },

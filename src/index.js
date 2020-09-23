@@ -13,7 +13,9 @@ mongoose.connect(process.env.DATA_BASE_STRING_CONN || 'mongodb://localhost/howmy
 .catch((err) => console.log('Error connecting to database' + err))
 
 const app = express();
-const api = require('./routes/api');
+const userRoute = require('./routes/user');
+const feedRoute = require('./routes/feed');
+const adminRoute = require('./routes/admin');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -30,9 +32,11 @@ app.use(session({
     cookie: { secure: false, maxAge: process.env.COOKIE_MAX_AGE || 1000 * 60 * 4 }
 }));
 //PRODUCTION VALUE
-app.set('trust proxy', 1)
+//app.set('trust proxy', 1)
 
-app.use('/api', api)
+app.use('/api/user', userRoute)
+app.use('/api/feed', feedRoute)
+app.use('/api/admin', adminRoute)
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server web Running [OK]");
