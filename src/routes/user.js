@@ -16,10 +16,3 @@ router.get('/me', [secure.verifyToken, rateLimit.apiRegularLimit], async (req, r
 
 module.exports = router
 
-/*
-    -Editar perfil [X]
-        -Censurar audio (reemplazar el audio existinte por el ronreo de un gato)[X]
-        -Desactivar el perfil[ ]
-    -Eliminar perfil[ ]
-    -Ver todos los perfiles[X]
-*/

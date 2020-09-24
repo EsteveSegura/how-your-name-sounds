@@ -49,7 +49,7 @@ async function login(req, res) {
 
     req.session.token = token
     req.session.userInfo = { email: req.body.email, _id: userFromDataBase._id, soundPath: userFromDataBase.soundPath, isAdmin: userFromDataBase.isAdmin }
-    return res.status(200).json({ 'message': 'user acess granted'})
+    return res.status(200).json({ 'message': 'user acess granted' })
 }
 
 async function editUser(req, res) {
@@ -69,7 +69,8 @@ async function editUser(req, res) {
 }
 
 async function feed(req, res) {
-    let getFeed = await dbUser.getFeedDataBase()
+    let getFeed = await dbUser.getFeedDataBase('screenName soundPath activeProfile updatedAt -_id', req.session.userInfo.isAdmin)
+    
     if (!getFeed) return res.status(404).json({ 'error': 'feed could not be found' })
 
     return res.status(200).json(getFeed)
@@ -92,10 +93,10 @@ async function getUser(req, res) {
     return res.status(200).json(userFromDataBase)
 }
 
-async function logOut(req,res){
+async function logOut(req, res) {
     req.session.destroy()
     res.clearCookie('userData')
-    
+
 }
 
 

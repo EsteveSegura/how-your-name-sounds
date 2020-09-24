@@ -12,7 +12,9 @@ function verifyToken(req, res, next) {
 function verifyAdmin(req, res, next) {
     if (!req.session.hasOwnProperty('userInfo')) return res.status(401).json({ 'error': 'Not logged in' })
     if (!req.session.userInfo.hasOwnProperty('isAdmin')) return res.status(401).json({ 'error': 'Unauthorized!' })
-    next()
+    if (!req.session.userInfo.isAdmin) return res.status(401).json({ 'error': 'Unauthorized!' })
+    if (req.session.userInfo.isAdmin) next()
+    
 }
 
 module.exports = { verifyToken, verifyAdmin }
