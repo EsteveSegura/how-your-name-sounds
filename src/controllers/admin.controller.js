@@ -42,7 +42,6 @@ async function editUser(req, res) {
     let edit = await dbUser.editUserDataBase(req.params.email, req.body)
     if (!edit) return res.status(500).json({ 'error': 'database problems.' })
 
-    console.log(edit)
     return res.status(200).json({ 'message': 'data edited' })
 }
 

@@ -1,6 +1,6 @@
 const request = require("supertest");
 const path = require('path')
-require('dotenv').config({ path: path.resolve(__dirname, '../src/.env') })
+require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 const chai = require("chai")
 const expect = require('chai').expect;
 

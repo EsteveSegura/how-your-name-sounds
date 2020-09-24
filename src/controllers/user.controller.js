@@ -88,7 +88,6 @@ async function getUser(req, res) {
     let userFromDataBase = await dbUser.getUserDataBase(req.params, 'screenName activeProfile soundPath -_id')
     if (!userFromDataBase) return res.status(401).json({ 'error': 'user no exists' })
     if (!userFromDataBase.activeProfile) return res.status(200).json({ 'error': 'user banned' })
-    console.log(userFromDataBase.activeProfile)
 
     return res.status(200).json(userFromDataBase)
 }
